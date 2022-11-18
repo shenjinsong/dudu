@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>全是嘟嘟啊</title>
+    <link rel="stylesheet" href="http://rlfjv29x0.hn-bkt.clouddn.com/vant.css"/>
+    <script src="http://rlfjv29x0.hn-bkt.clouddn.com/vue.min.js"></script>
+    <script src="http://rlfjv29x0.hn-bkt.clouddn.com/vant.min.js"></script>
+    <style>
+        .flex-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .img-item {
+            width: 33%;
+            margin-top: 0.6%;
+        }
+    </style>
+</head>
+<body>
+<div id="imgsrc">
+    <van-list
+            v-model="loading"
+            :finished="finished"
+            finished-text="没有更多了"
+            @load="onLoad"
+    >
+        <div class="flex-content">
+            <van-image @click="showImgs(index)" fit="cover" class="img-item" v-for="(img_src,index) in imgs"
+                       lazy-load
+                       :src="oss_host + 'icon_'+ img_src.key"/>
+        </div>
+    </van-list>
+
+</div>
+
+</body>
+<script>
+
+    new Vue({
+
+        el: '#imgsrc',
+        data() {
+            return {
+                imgs: [],
+                pageNum: 1,
+                loading: false,
+                finished: false,
+                oss_host: ''
+            }
+        },
+        methods: {
+            showImgs(index) {
+                vant.ImagePreview({
+                    showIndicators: true,
+                    images: this.imgs.map(items => this.oss_host + items.key),
+                    startPosition: index
+                })
+            },
+            onLoad() {
+                console.log('loading 执行')
+                this.getList()
+            },
+            getList() {
+                console.log('loading 了 ，开始调用接口', this.loading)
+                let xhr = new XMLHttpRequest()
+                // xhr.open('GET', 'http://172.16.1.2:1024/photo_list?' + 'page_num=' + this.pageNum, true)
+               xhr.open('GET', 'http://175.178.194.38:7001/photo_list?' + 'page_num=' + this.pageNum, true)
+                xhr.send()
+                xhr.onreadystatechange = () => {
+                    if (xhr.status === 200 && xhr.readyState === 4) {
+                        const res = JSON.parse(xhr.response)
+                        if (!res.data.has_next) {
+                            this.finished = true
+                        }
+                        this.imgs = [...this.imgs, ...res.data.result]
+                        this.oss_host = res.data.oss_host
+                        this.pageNum++
+                        this.loading = false;
+                    }
+                }
+
+            }
+        }
+    });
+
+    Vue.use(vant.Image);
+    Vue.use(vant.Grid);
+    Vue.use(vant.GridItem);
+    Vue.use(vant.Lazyload);
+    Vue.use(vant.List);
+
+</script>
+</html>
