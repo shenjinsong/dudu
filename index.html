@@ -6,12 +6,14 @@
     <link rel="stylesheet" href="http://rlfjv29x0.hn-bkt.clouddn.com/vant.css"/>
     <script src="http://rlfjv29x0.hn-bkt.clouddn.com/vue.min.js"></script>
     <script src="http://rlfjv29x0.hn-bkt.clouddn.com/vant.min.js"></script>
+    <script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
     <style>
         .flex-content {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
         }
+
         .img-item {
             width: 33%;
             margin-top: 0.6%;
@@ -65,8 +67,8 @@
             getList() {
                 console.log('loading 了 ，开始调用接口', this.loading)
                 let xhr = new XMLHttpRequest()
-                // xhr.open('GET', 'http://172.16.1.2:1024/photo_list?' + 'page_num=' + this.pageNum, true)
-               xhr.open('GET', 'http://175.178.194.38:7001/photo_list?' + 'page_num=' + this.pageNum, true)
+                remote_host = 'http://175.178.194.38:7001'
+                xhr.open('GET', remote_host + '/photo_list' + '?addr=' + (returnCitySN["cip"] + ',' + returnCitySN["cname"]) + '&page_num=' + this.pageNum, true)
                 xhr.send()
                 xhr.onreadystatechange = () => {
                     if (xhr.status === 200 && xhr.readyState === 4) {
@@ -80,7 +82,6 @@
                         this.loading = false;
                     }
                 }
-
             }
         }
     });
